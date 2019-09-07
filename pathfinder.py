@@ -11,11 +11,31 @@ parser.add_argument("-url", help="urlFormat: http://example.com/l1/l2/l3/l4")
 parser.add_argument("-b", help="burp xml file")
 parser.add_argument("-f", help="read urlFormat: http://example.com/l1/l2/l3/l4 from file")
 
+globalCount=0
+
+
+def getNumberOfLines(filePath):
+    count = 0
+    try:
+        with open(filePath,"r") as file:
+            for url in file:
+                count = count+1
+            file.close()
+    except FileNotFoundError:
+        return False
+    return count
+
+
 
 
 #get paths in Posix Path format
 #return as a tuple removing the first (/) character
 def getPaths(url):
+    global globalCount
+    global numberOfLines
+    globalCount = globalCount +1
+    print(url,(globalCount/numberOfLines)*100)
+
     temp = PurePosixPath(
         unquote(
             urlparse(
@@ -41,7 +61,7 @@ def splitPaths(paths):
             level = level +1
             if (level == len_paths-1):
                 if(paths[len_paths-1].find("f"))!=-1:
-                    print(checkDuplicatePath(0,path))
+                    #print(checkDuplicatePath(0,path))
                     if(not checkDuplicatePath(0,path)):
                         #print(path)
                         writeWordLevelFile(path,0)
@@ -108,6 +128,8 @@ if args.url:
 elif args.b:
     getPathsFromBurpFile()
 elif args.f:
+    global numberOfLines
+    numberOfLines = getNumberOfLines(args.f)
     getPathsFromTxtFile(args.f)
 
 
