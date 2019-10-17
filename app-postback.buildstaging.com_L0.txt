@@ -1,2 +1,0 @@
-main.43a6807d.js
-vendors.240068be.js

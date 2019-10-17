@@ -1,4 +1,0 @@
-userprofile
-affiliation
-marketplace
-purchase

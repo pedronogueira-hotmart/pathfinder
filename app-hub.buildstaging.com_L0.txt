@@ -1,5 +1,0 @@
-
-pt-BR.json
-robots.txt
-websocket
-info

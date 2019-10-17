@@ -1,5 +1,0 @@
-b1bb32087f3c11c4356b32003494e707ded61107.js
-cf8a42c58ac605b70c37e4507477096ff978d667.css
-global-loader.css
-favicon.ico
-logo.svg

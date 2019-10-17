@@ -1,5 +1,0 @@
-configurations
-events
-history
-postback
-products

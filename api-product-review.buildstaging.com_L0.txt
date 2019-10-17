@@ -1,3 +1,0 @@
-favicon.ico
-3165182
-robots.txt

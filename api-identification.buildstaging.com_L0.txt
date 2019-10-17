@@ -1,2 +1,0 @@
-id.gif
-id.min.js
