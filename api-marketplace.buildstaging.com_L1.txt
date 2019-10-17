@@ -1,0 +1,4 @@
+userprofile
+affiliation
+marketplace
+purchase

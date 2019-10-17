@@ -1,0 +1,8 @@
+hotlink
+product
+backoffice
+detail
+address
+download
+user
+withdraw

@@ -17,14 +17,19 @@ numberOfLines=0
 
 
 def getDomain(url):
-    domain = re.search("^.[^/?&]+", url)
+    cleanURL = re.sub("^(http|https)://","",url)
+    cleanURL = re.sub("^(www)\.","",cleanURL)
+
+    print(cleanURL)
+
+    domain = re.search("^.[^/?&]+", cleanURL)
     print(domain.group(0))
     return domain.group(0)
 
 
 
 def listFiles(path):
-    files = [f for f in glob.glob(path + "**/L*.txt", recursive=True)]
+    files = [f for f in glob.glob(path + "**/*_L*.txt", recursive=True)]
     return files
 
 
@@ -96,7 +101,7 @@ def getPaths(url):
     return (temp[ : 0 ] + temp[1 : ])
 
 
-def splitPaths(paths):
+def splitPaths(url,paths):
     level = 0
     len_paths = len(paths)
     
@@ -106,23 +111,23 @@ def splitPaths(paths):
             if (level == len_paths-1):
                 if(paths[len_paths-1].find("f"))!=-1:
                     #print(checkDuplicatePath(0,path))
-                    if(not checkDuplicatePath(0,path)):
+                    if(not checkDuplicatePath(getDomain(url),0,path)):
                         #print(path)
-                        writeWordLevelFile(path,0)
+                        writeWordLevelFile(getDomain(url),path,0)
                 else:
-                    if(not checkDuplicatePath(level,path)):
+                    if(not checkDuplicatePath(getDomain(url),level,path)):
                         #print(path)
-                        writeWordLevelFile(path,level)
+                        writeWordLevelFile(getDomain(url),path,level)
             elif (level != len_paths):
-                if(not checkDuplicatePath(level,path)):
+                if(not checkDuplicatePath(getDomain(url),level,path)):
                     #print(path)
 
-                    writeWordLevelFile(path,level)
+                    writeWordLevelFile(getDomain(url),path,level)
            
 
-def checkDuplicatePath(level,path_check):
+def checkDuplicatePath(domain,level,path_check):
     try:
-        with open("L"+str(level)+".txt","r") as file:
+        with open(domain+"_"+"L"+str(level)+".txt","r") as file:
             for path in file:
                 if path.find(path_check) >=0:
                     return True
@@ -135,10 +140,12 @@ def checkDuplicatePath(level,path_check):
 
 
 
-def writeWordLevelFile(path,level):
-    file = open(getDomain(path)+"_"+"L"+str(level)+".txt","a+")
-    file.write(path+"\n")
-    file.close
+def writeWordLevelFile(domain,path,level):
+    if path != '':
+        file = open(domain+"_"+"L"+str(level)+".txt","a+")
+        path = path.replace("\n","")
+        file.write(path+"\n")
+        file.close
 
 
 def getPathsFromBurpFile():
@@ -151,33 +158,67 @@ def getPathsFromBurpFile():
             splitPaths(paths)
         #print(node.text)
 
-def consolodateFiles(path_L_files):
-    print(path_L_files+"L*.txt")
-    print(sorted(glob.glob(path_L_files+"L*.txt")))
-    L_files = sorted(glob.glob(path_L_files+"L*.txt"))
+def consolodateFiles(domain):
+    #print(sorted(glob.glob(domain+"_L*.txt")))
+    L_files = sorted(glob.glob(domain+"_L*.txt"))
+    consolidatePathsFile=[]
+    consolidatePathsGeneral=[]
+
+    
 
     size_L_files = len(L_files)
+    
 
     for i in range(size_L_files):
         #descartar size = 1 se L0.txt existir
 
-        with open(l_file,'r') as paths:
+        with open(L_files[i],'r') as paths:
             for path in paths:
-                print(path)
+                consolidatePathsFile.append(path)
+                #print(path)
+        consolidatePathsGeneral.append(consolidatePathsFile)
+        consolidatePathsFile=[]
 
-    
+    if(L_files.__getitem__(0).__contains__('L0.txt')==True):
+        temp = consolidatePathsGeneral[0]
+        consolidatePathsGeneral[0]=consolidatePathsGeneral[len(consolidatePathsGeneral)-1]
+        consolidatePathsGeneral[len(consolidatePathsGeneral)-1]=temp
 
 
-        print(L_files[i])
+    #print(consolidatePathsGeneral)
+
+    r=[[]]
+    for x in consolidatePathsGeneral:
+        t = []
+        for y in x:
+            for i in r:
+                t.append(i+[y])
+        r = t
+    #print(r)
+    path = ""
+
+    for i in range(0,len(r)):
+        for j in range(0,len(r[i])):
+            path = path+'/'+''.join(r[i][j].replace("\n",""))
+        print (path)
+        path = ""
 
 
-    for l_file in sorted(glob.glob(path_L_files+"L*.txt")):
-        with open(l_file,'r') as paths:
-            for path in paths:
-                print(path)
-    
 
-    return 1
+
+
+
+    # for k in range(0,len(consolidatePathsGeneral)):
+    #     for w in range(0,len(consolidatePathsGeneral[k])):
+    #         str = ''.join(consolidatePathsGeneral[k][w])
+    #         print(str)
+    #         for i in range(w+1,len(consolidatePathsGeneral)):
+    #             str = ''.join(consolidatePathsGeneral[i][w])
+    #             print(str)
+    #             for j in range(0,len(consolidatePathsGeneral[k])):
+    #                 str = ''.join(consolidatePathsGeneral[i][w])
+    #                 print(str)
+    # return 1
 
 
 def getPathsFromTxtFile(filePath):
@@ -185,7 +226,7 @@ def getPathsFromTxtFile(filePath):
         with open(filePath,"r") as file:
             for url in file:
                 paths = getPaths(url)
-                splitPaths(paths)
+                splitPaths(url,paths)
             file.close()
     except FileNotFoundError:
         return False
@@ -195,7 +236,7 @@ args = parser.parse_args()
 
 if args.url:
     paths = getPaths(args.url)
-    splitPaths(paths)
+    splitPaths(getDomain(args.url),paths)
 elif args.b:
     getPathsFromBurpFile()
 elif args.c:

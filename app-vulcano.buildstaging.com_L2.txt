@@ -1,0 +1,10 @@
+dynamic-import
+badges
+banners
+dashboard
+login
+multi
+images
+manage
+998
+product

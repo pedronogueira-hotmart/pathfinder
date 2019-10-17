@@ -1,0 +1,9 @@
+__meteor__
+accounts
+images
+languages
+products
+reports
+sockjs
+tools
+upload
